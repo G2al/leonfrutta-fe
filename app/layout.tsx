@@ -3,6 +3,7 @@ import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
 import { BottomNav } from "@/components/BottomNav";
 import { InstallBanner } from "@/components/InstallBanner";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { ZoomLock } from "@/components/ZoomLock";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -33,6 +34,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Zoom bloccato come in un'app nativa (iOS ignora questi valori: vedi ZoomLock).
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
   themeColor: "#f8fafc",
 };
@@ -45,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <BottomNav />
         <InstallBanner />
         <ServiceWorkerRegister />
+        <ZoomLock />
       </body>
     </html>
   );

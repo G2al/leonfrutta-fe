@@ -9,8 +9,8 @@ import { useOnlineStatus } from "@/lib/use-online-status";
 import { FIELD_LIMITS, charCount, trimPayload, validateField, validateOrder } from "@/lib/validation";
 import { Confirmation } from "./Confirmation";
 import { TextAreaField, TextField } from "./FormField";
-import { SendIcon, SpinnerIcon } from "./icons";
 import { Notice } from "./Notice";
+import { SubmitButton, type SubmitPhase } from "./SubmitButton";
 
 const FIELD_ORDER: OrderField[] = ["first_name", "last_name", "business_name", "phone", "message"];
 
@@ -25,7 +25,10 @@ const EMPTY_VALUES: OrderPayload = {
 const OFFLINE_MESSAGE =
   "Sei offline. Controlla la connessione: i dati inseriti restano nel modulo.";
 
-const fieldId = (field: OrderField) => `order-${field}`;
+/** Tempo in cui il pulsante mostra "Inviata!" prima della schermata di conferma. */
+const SUCCESS_ANIMATION_MS = 700;
+
+const fieldId =(field: OrderField) => `order-${field}`;
 
 function focusFirstError(errors: FieldErrors) {
   const first = FIELD_ORDER.find((field) => errors[field]);
@@ -39,7 +42,7 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
   const [values, setValues] = useState<OrderPayload>(EMPTY_VALUES);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [banner, setBanner] = useState<Banner>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [phase, setPhase] = useState<SubmitPhase>("idle");
   const [remember, setRemember] = useState(true);
   const [hasSavedContact, setHasSavedContact] = useState(false);
   const [retryUntil, setRetryUntil] = useState<number | null>(null);
@@ -100,7 +103,7 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting || retryUntil !== null) return;
+    if (phase !== "idle" || retryUntil !== null) return;
 
     const clientErrors = validateOrder(values);
     if (Object.keys(clientErrors).length > 0) {
@@ -118,12 +121,17 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
     const payload = trimPayload(values);
     setErrors({});
     setBanner(null);
-    setSubmitting(true);
+    setPhase("sending");
     const result = await submitOrder(payload);
-    setSubmitting(false);
+
+    if (result.kind !== "success") setPhase("idle");
 
     switch (result.kind) {
       case "success": {
+        // La barra arriva al 100% e mostra la spunta prima della conferma.
+        setPhase("done");
+        await new Promise((resolve) => setTimeout(resolve, SUCCESS_ANIMATION_MS));
+        setPhase("idle");
         if (remember) {
           saveContact(payload);
           setHasSavedContact(true);
@@ -170,7 +178,6 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
   const messageLength = charCount(values.message.trim());
   const messageMax = FIELD_LIMITS.message.max;
   const rateLimited = retryUntil !== null;
-  const disabled = submitting || rateLimited;
 
   const inputProps = (field: OrderField) => ({
     id: fieldId(field),
@@ -185,7 +192,7 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
   return (
     <>
     {intro}
-    <form noValidate onSubmit={handleSubmit} aria-busy={submitting} className="space-y-6">
+    <form noValidate onSubmit={handleSubmit} aria-busy={phase === "sending"} className="space-y-6">
       {!online && (
         <Notice tone="warning" icon="offline">
           {OFFLINE_MESSAGE}
@@ -271,23 +278,10 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
       )}
 
       <div className="space-y-3">
-        <button
-          type="submit"
-          disabled={disabled}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-7 text-base font-semibold text-white shadow-ds-sm transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-primary"
-        >
-          {submitting ? (
-            <>
-              <SpinnerIcon /> Invio in corso…
-            </>
-          ) : rateLimited ? (
-            `Riprova tra ${secondsLeft} s`
-          ) : (
-            <>
-              <SendIcon width={18} height={18} /> Invia richiesta
-            </>
-          )}
-        </button>
+        <SubmitButton
+          phase={phase}
+          blockedLabel={rateLimited ? `Riprova tra ${secondsLeft} s` : undefined}
+        />
         <p className="text-center text-xs leading-relaxed text-muted">
           La richiesta non è ancora un ordine confermato: LeonFrutta verificherà
           disponibilità e prezzi e ti risponderà su WhatsApp.

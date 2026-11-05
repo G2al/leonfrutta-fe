@@ -3,11 +3,12 @@
 // dominio). Le chiamate all'API (POST e GET) non passano mai da qui: nessuna
 // cache delle risposte e nessuna coda di invio offline.
 
-const CACHE = "leonfrutta-shell-v3";
+const CACHE = "leonfrutta-shell-v4";
 // Pagine disponibili anche offline. Il dettaglio /richieste/{codice} non viene
 // salvato, per non conservare i codici segreti nella cache.
 const PAGES = ["/", "/richieste"];
-const SHELL = [...PAGES, "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
+// Le icone si salvano al primo uso, con l'URL versionato del manifest.
+const SHELL = [...PAGES, "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

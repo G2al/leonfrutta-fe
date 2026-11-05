@@ -26,7 +26,7 @@ export function OrderDetailView({ order }: { order: Order }) {
     <div className="space-y-4">
       <section
         aria-label="Stato della richiesta"
-        className={`rounded-2xl border p-5 ${statusPanel[order.status] ?? "border-border bg-surface"}`}
+        className={`animate-rise rounded-3xl border p-5 shadow-ds-sm ${statusPanel[order.status] ?? "border-border bg-surface"}`}
       >
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge order={order} />
@@ -35,21 +35,21 @@ export function OrderDetailView({ order }: { order: Order }) {
         <p className="mt-3 text-base leading-relaxed">{STATUS_DESCRIPTION[order.status]}</p>
 
         {confirmed && amount && (
-          <div className="mt-4 rounded-lg bg-surface px-4 py-3 shadow-ds-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+          <div className="bg-hero relative mt-4 overflow-hidden rounded-2xl px-5 py-4 text-white shadow-cta">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
               Importo comunicato da LeonFrutta
             </p>
-            <p className="mt-1 font-heading text-3xl font-bold tabular-nums" data-testid="order-amount">
+            <p className="mt-1 font-heading text-4xl font-extrabold tabular-nums" data-testid="order-amount">
               {amount}
             </p>
-            <p className="mt-1 text-xs text-muted">
+            <p className="mt-1 text-xs text-white/80">
               L&apos;importo può essere aggiornato da LeonFrutta fino al pagamento.
             </p>
           </div>
         )}
       </section>
 
-      <dl className="divide-y divide-subtle rounded-2xl border border-border bg-surface">
+      <dl className="animate-rise divide-y divide-border rounded-3xl border border-border bg-surface shadow-ds-md [animation-delay:80ms]">
         <Row label="Numero richiesta">
           <span className="font-mono text-base font-semibold tabular-nums">#{order.id}</span>
         </Row>
@@ -66,7 +66,7 @@ export function OrderDetailView({ order }: { order: Order }) {
         )}
       </dl>
 
-      <section aria-labelledby="order-message-title" className="rounded-2xl border border-border bg-surface p-5">
+      <section aria-labelledby="order-message-title" className="animate-rise rounded-3xl border border-border bg-surface p-5 shadow-ds-md [animation-delay:160ms]">
         <h2 id="order-message-title" className="text-base font-semibold">
           La tua richiesta
         </h2>

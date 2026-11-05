@@ -16,7 +16,7 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     background_color: "#ffffff",
-    theme_color: "#f8fafc",
+    theme_color: "#15803d",
     // Logo su fondo bianco, generate con: node scripts/generate-icons.mjs
     icons: [
       { src: `/icons/icon-192.png?v=${ICON_VERSION}`, sizes: "192x192", type: "image/png", purpose: "any" },

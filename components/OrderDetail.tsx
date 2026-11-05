@@ -68,7 +68,10 @@ export function OrderDetail({ token }: { token: string }) {
 
   if (state.kind === "not_found") {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 text-center">
+      <div className="animate-rise rounded-3xl border border-border bg-surface p-6 text-center shadow-ds-md">
+        <div aria-hidden="true" className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-tomato-soft text-3xl">
+          🔍
+        </div>
         <h2 className="text-xl font-semibold">Richiesta non trovata</h2>
         <p className="mt-2 text-base leading-relaxed text-muted">
           Il codice non è valido o la richiesta non è più disponibile. Se era
@@ -76,7 +79,7 @@ export function OrderDetail({ token }: { token: string }) {
         </p>
         <Link
           href="/richieste"
-          className="mt-5 inline-flex h-12 items-center justify-center rounded-lg border border-primary px-7 text-base font-medium hover:bg-primary/5"
+          className="mt-5 inline-flex h-12 items-center justify-center btn-outline rounded-2xl px-7 text-base font-semibold"
         >
           Vai a Le mie richieste
         </Link>

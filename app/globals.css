@@ -1,40 +1,62 @@
 @import "tailwindcss";
 
-/* Token dal design system (verdana-health-design-system-DESIGN.md) */
+/*
+ * Token grafici. Struttura (font, spaziature, raggi, componenti) dal design
+ * system Verdana; colori presi dal logo LeonFrutta: verde foglia, crema caldo,
+ * accenti pomodoro e sole.
+ */
 @theme {
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #0f172a;
-  --color-primary-hover: #020617;
-  --color-secondary: #64748b;
-  --color-muted: #475569;
-  --color-accent: #059669;
-  --color-accent-soft: #05966914;
-  --color-background: #f8fafc;
+  /* Testo e contorni ("inchiostro" verde scurissimo, più caldo del navy). */
+  --color-primary: #1b2a20;
+  --color-primary-hover: #0f1a13;
+  --color-secondary: #7a8a7f;
+  --color-muted: #55665a;
+
+  /* Verde foglia: azioni principali e stati positivi. */
+  --color-accent: #15803d;
+  --color-accent-hover: #116a33;
+  --color-accent-strong: #0f5c2c;
+  --color-accent-soft: #15803d14;
+  --color-leaf: #22a35a;
+
+  /* Accenti caldi dal logo. */
+  --color-tomato: #e4572e;
+  --color-tomato-soft: #e4572e1a;
+  --color-sun: #f5b82e;
+
+  --color-background: #fff9f0;
   --color-surface: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-subtle: #f1f5f9;
+  --color-border: #efe5d6;
+  --color-border-strong: #dccdb8;
+  --color-subtle: #f7f0e5;
+
   --color-success: #22c55e;
-  --color-success-text: #16a34a;
-  --color-warning: #eab308;
-  --color-warning-text: #a16207;
+  --color-success-text: #15803d;
+  --color-warning: #f59e0b;
+  --color-warning-text: #9a5b05;
   --color-error: #ef4444;
-  --color-error-text: #dc2626;
+  --color-error-text: #c2410c;
   --color-info: #0ea5e9;
 
-  --shadow-ds-sm: 0 1px 3px rgb(15 23 42 / 0.03);
-  --shadow-ds: 0 2px 6px rgb(15 23 42 / 0.05);
-  --shadow-ds-md: 0 4px 16px rgb(15 23 42 / 0.07);
-  --shadow-ds-lg: 0 8px 32px rgb(15 23 42 / 0.1);
+  /* Ombre morbide e calde. */
+  --shadow-ds-sm: 0 1px 3px rgb(74 52 20 / 0.06);
+  --shadow-ds: 0 2px 8px rgb(74 52 20 / 0.07);
+  --shadow-ds-md: 0 6px 20px rgb(74 52 20 / 0.08);
+  --shadow-ds-lg: 0 12px 40px rgb(27 42 32 / 0.16);
+  --shadow-cta: 0 6px 16px rgb(21 128 61 / 0.32);
 
   --animate-sheet-up: sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-fade-in: fade-in 200ms ease-out;
+  --animate-rise: rise 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Pulsante d'invio: barra che rallenta avvicinandosi all'85%. */
   --animate-progress: progress 4s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
   --animate-shimmer: shimmer 1.2s linear infinite;
   --animate-pop: pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-burst: burst 900ms cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  --animate-float: float 6s ease-in-out infinite;
 
   @keyframes progress {
     from {
@@ -80,18 +102,88 @@
       opacity: 1;
     }
   }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Coriandoli della conferma: ogni pezzo vola nella direzione --dx/--dy. */
+  @keyframes burst {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(0.4) rotate(0deg);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot));
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+}
+
+/* Pulsante principale: verde foglia con leggera sfumatura e ombra colorata. */
+@utility btn-cta {
+  background-image: linear-gradient(180deg, var(--color-accent), var(--color-accent-hover));
+  color: #fff;
+  box-shadow: var(--shadow-cta);
+  &:hover {
+    background-image: linear-gradient(180deg, var(--color-accent-hover), var(--color-accent-strong));
+  }
+}
+
+/* Pulsante secondario: contorno verde. */
+@utility btn-outline {
+  border: 1.5px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  color: var(--color-accent-strong);
+  background: var(--color-surface);
+  &:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+  }
+}
+
+/* Fascia verde della testata, con luci morbide. */
+@utility bg-hero {
+  background:
+    radial-gradient(circle at 85% 15%, rgb(245 184 46 / 0.35), transparent 40%),
+    radial-gradient(circle at 10% 90%, rgb(255 255 255 / 0.14), transparent 45%),
+    linear-gradient(160deg, #1f9d55 0%, #15803d 55%, #0f5c2c 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-sheet-up,
   .animate-fade-in,
+  .animate-rise,
   .animate-shimmer,
-  .animate-pop {
+  .animate-pop,
+  .animate-float {
     animation: none;
   }
   .animate-progress {
     animation: none;
     width: 85%;
+  }
+  .animate-burst {
+    display: none;
   }
 }
 

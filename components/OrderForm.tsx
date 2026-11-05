@@ -1,15 +1,26 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type FormEvent,
+  type ReactNode,
+  type SVGProps,
+} from "react";
 import { submitOrder } from "@/lib/api/orders";
 import type { FieldErrors, Order, OrderField, OrderPayload } from "@/lib/api/types";
 import { addSavedOrder } from "@/lib/my-orders";
+import { appendProduct } from "@/lib/products";
 import { clearContact, loadContact, saveContact } from "@/lib/saved-contact";
 import { useOnlineStatus } from "@/lib/use-online-status";
 import { FIELD_LIMITS, charCount, trimPayload, validateField, validateOrder } from "@/lib/validation";
 import { Confirmation } from "./Confirmation";
 import { TextAreaField, TextField } from "./FormField";
+import { BasketIcon, PhoneIcon, StoreIcon, UserIcon } from "./icons";
 import { Notice } from "./Notice";
+import { QuickProducts } from "./QuickProducts";
 import { SubmitButton, type SubmitPhase } from "./SubmitButton";
 
 const FIELD_ORDER: OrderField[] = ["first_name", "last_name", "business_name", "phone", "message"];
@@ -28,7 +39,7 @@ const OFFLINE_MESSAGE =
 /** Tempo in cui il pulsante mostra "Inviata!" prima della schermata di conferma. */
 const SUCCESS_ANIMATION_MS = 700;
 
-const fieldId =(field: OrderField) => `order-${field}`;
+const fieldId = (field: OrderField) => `order-${field}`;
 
 function focusFirstError(errors: FieldErrors) {
   const first = FIELD_ORDER.find((field) => errors[field]);
@@ -49,6 +60,7 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [confirmed, setConfirmed] = useState<{ order: Order; phone: string; saved: boolean } | null>(null);
   const online = useOnlineStatus();
+  const messageRef = useRef<HTMLTextAreaElement>(null);
 
   // Precompila i dati anagrafici salvati (solo lato client, dopo il montaggio).
   useEffect(() => {
@@ -91,6 +103,19 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
     if (values[field].trim() !== "") {
       setErrors((current) => ({ ...current, [field]: validateField(field, values[field]) }));
     }
+  }
+
+  /** Aggiunge un prodotto suggerito al testo e porta il cursore dopo i due punti. */
+  function handleAddProduct(name: string) {
+    const next = appendProduct(values.message, name);
+    if (charCount(next.trim()) <= FIELD_LIMITS.message.max) updateField("message", next);
+    requestAnimationFrame(() => {
+      const textarea = messageRef.current;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+      textarea.scrollTop = textarea.scrollHeight;
+    });
   }
 
   function handleForgetContact() {
@@ -191,103 +216,149 @@ export function OrderForm({ intro }: { intro?: ReactNode }) {
 
   return (
     <>
-    {intro}
-    <form noValidate onSubmit={handleSubmit} aria-busy={phase === "sending"} className="space-y-6">
-      {!online && (
-        <Notice tone="warning" icon="offline">
-          {OFFLINE_MESSAGE}
-        </Notice>
-      )}
+      {intro}
+      <form noValidate onSubmit={handleSubmit} aria-busy={phase === "sending"} className="space-y-5">
+        {!online && (
+          <Notice tone="warning" icon="offline">
+            {OFFLINE_MESSAGE}
+          </Notice>
+        )}
 
-      <fieldset className="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-ds-sm">
-        <legend className="sr-only">I tuoi dati</legend>
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">I tuoi dati</h2>
-          {hasSavedContact && (
-            <button
-              type="button"
-              onClick={handleForgetContact}
-              className="-mr-2 rounded-lg px-2 py-1 text-sm text-muted underline-offset-2 hover:bg-subtle hover:underline"
-            >
-              Cancella dati salvati
-            </button>
-          )}
-        </div>
+        <fieldset className="animate-rise min-w-0 space-y-4 rounded-3xl border border-border bg-surface p-5 shadow-ds-md [animation-delay:140ms]">
+          <legend className="sr-only">I tuoi dati</legend>
+          <StepHeader step={1} title="I tuoi dati" icon={UserIcon}>
+            {hasSavedContact && (
+              <button
+                type="button"
+                onClick={handleForgetContact}
+                className="-mr-2 rounded-lg px-2 py-1 text-xs font-medium text-muted underline-offset-2 hover:bg-subtle hover:underline"
+              >
+                Cancella dati salvati
+              </button>
+            )}
+          </StepHeader>
 
-        <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
-          <TextField {...inputProps("first_name")} label="Nome" autoComplete="given-name" autoCapitalize="words" />
-          <TextField {...inputProps("last_name")} label="Cognome" autoComplete="family-name" autoCapitalize="words" />
-        </div>
-        <TextField
-          {...inputProps("business_name")}
-          label="Nome dell'attività"
-          autoComplete="organization"
-          autoCapitalize="words"
-          placeholder="Es. Pizzeria Da Mario"
-        />
-        <TextField
-          {...inputProps("phone")}
-          label="Telefono"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="Es. 333 123 4567"
-          helper={errors.phone ? undefined : "Ti contatteremo su WhatsApp a questo numero."}
-        />
-
-        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-muted">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(event) => setRemember(event.target.checked)}
-            className="size-[18px] shrink-0 cursor-pointer rounded accent-primary"
+          <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2">
+            <TextField
+              {...inputProps("first_name")}
+              label="Nome"
+              icon={UserIcon}
+              autoComplete="given-name"
+              autoCapitalize="words"
+            />
+            <TextField
+              {...inputProps("last_name")}
+              label="Cognome"
+              icon={UserIcon}
+              autoComplete="family-name"
+              autoCapitalize="words"
+            />
+          </div>
+          <TextField
+            {...inputProps("business_name")}
+            label="Nome dell'attività"
+            icon={StoreIcon}
+            autoComplete="organization"
+            autoCapitalize="words"
+            placeholder="Es. Pizzeria Da Mario"
           />
-          Ricorda i miei dati su questo dispositivo
-        </label>
-      </fieldset>
+          <TextField
+            {...inputProps("phone")}
+            label="Telefono"
+            icon={PhoneIcon}
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="Es. 333 123 4567"
+            helper={errors.phone ? undefined : "Ti contatteremo su WhatsApp a questo numero."}
+          />
 
-      <fieldset className="rounded-2xl border border-border bg-surface p-5 shadow-ds-sm">
-        <legend className="sr-only">La tua richiesta</legend>
-        <TextAreaField
-          {...inputProps("message")}
-          label="La tua richiesta"
-          rows={7}
-          autoCapitalize="sentences"
-          placeholder="Es. 10 kg di pomodori, 5 kg di patate, 3 cassette di insalata…"
-          helper={errors.message ? undefined : "Scrivi prodotti e quantità come faresti su WhatsApp."}
-          aside={
-            <span
-              className={`shrink-0 font-mono text-xs tabular-nums ${
-                messageLength > messageMax ? "text-error-text" : "text-secondary"
-              }`}
-              aria-label={`${messageLength} caratteri su ${messageMax}`}
-            >
-              {messageLength}/{messageMax}
-            </span>
-          }
-        />
-      </fieldset>
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-subtle/70 px-3 text-sm text-muted">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(event) => setRemember(event.target.checked)}
+              className="size-[18px] shrink-0 cursor-pointer rounded accent-accent"
+            />
+            Ricorda i miei dati su questo dispositivo
+          </label>
+        </fieldset>
 
-      {banner && (
-        <Notice tone={banner.tone} icon={banner.offline ? "offline" : "alert"}>
-          <p>{banner.message}</p>
-          {rateLimited && secondsLeft > 0 && (
-            <p className="mt-1 font-medium">Puoi riprovare tra {secondsLeft} secondi.</p>
-          )}
-        </Notice>
-      )}
+        <fieldset className="animate-rise min-w-0 space-y-4 rounded-3xl border border-border bg-surface p-5 shadow-ds-md [animation-delay:220ms]">
+          <legend className="sr-only">La tua richiesta</legend>
+          <StepHeader step={2} title="Cosa ti serve" icon={BasketIcon} />
 
-      <div className="space-y-3">
-        <SubmitButton
-          phase={phase}
-          blockedLabel={rateLimited ? `Riprova tra ${secondsLeft} s` : undefined}
-        />
-        <p className="text-center text-xs leading-relaxed text-muted">
-          La richiesta non è ancora un ordine confermato: LeonFrutta verificherà
-          disponibilità e prezzi e ti risponderà su WhatsApp.
-        </p>
-      </div>
-    </form>
+          <QuickProducts message={values.message} onAdd={handleAddProduct} />
+
+          <TextAreaField
+            {...inputProps("message")}
+            ref={messageRef}
+            label="La tua richiesta"
+            rows={7}
+            autoCapitalize="sentences"
+            placeholder="Es. 10 kg di pomodori, 5 kg di patate, 3 cassette di insalata…"
+            helper={errors.message ? undefined : "Scrivi prodotti e quantità come faresti su WhatsApp."}
+            aside={
+              <span
+                className={`shrink-0 font-mono text-xs tabular-nums ${
+                  messageLength > messageMax ? "text-error-text" : "text-secondary"
+                }`}
+                aria-label={`${messageLength} caratteri su ${messageMax}`}
+              >
+                {messageLength}/{messageMax}
+              </span>
+            }
+          />
+        </fieldset>
+
+        {banner && (
+          <Notice tone={banner.tone} icon={banner.offline ? "offline" : "alert"}>
+            <p>{banner.message}</p>
+            {rateLimited && secondsLeft > 0 && (
+              <p className="mt-1 font-medium">Puoi riprovare tra {secondsLeft} secondi.</p>
+            )}
+          </Notice>
+        )}
+
+        <div className="animate-rise space-y-3 pt-1 [animation-delay:300ms]">
+          <SubmitButton
+            phase={phase}
+            blockedLabel={rateLimited ? `Riprova tra ${secondsLeft} s` : undefined}
+          />
+          <p className="px-2 text-center text-xs leading-relaxed text-muted">
+            La richiesta non è ancora un ordine confermato: LeonFrutta verificherà
+            disponibilità e prezzi e ti risponderà su WhatsApp.
+          </p>
+        </div>
+      </form>
     </>
+  );
+}
+
+/** Titolo di una sezione del modulo, con numero del passo e icona. */
+function StepHeader({
+  step,
+  title,
+  icon: Icon,
+  children,
+}: {
+  step: number;
+  title: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <span className="relative flex size-10 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+          <Icon width={20} height={20} />
+          <span className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-tomato text-[11px] font-bold text-white ring-2 ring-surface">
+            {step}
+          </span>
+        </span>
+        <h2 className="text-lg font-bold">{title}</h2>
+      </div>
+      {children}
+    </div>
   );
 }

@@ -26,10 +26,10 @@ export function OrderCard({ saved, status, onRemove }: OrderCardProps) {
   const href = `/richieste/${encodeURIComponent(saved.tracking_token)}`;
 
   return (
-    <li className="rounded-2xl border border-border bg-surface shadow-ds-sm">
+    <li className="animate-rise overflow-hidden rounded-3xl border border-border bg-surface shadow-ds-md">
       <Link
         href={href}
-        className="block rounded-t-2xl p-4 transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+        className="block p-4 transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -71,14 +71,14 @@ export function OrderCard({ saved, status, onRemove }: OrderCardProps) {
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="h-10 flex-1 rounded-lg border border-border text-sm font-medium hover:bg-subtle"
+              className="h-10 flex-1 rounded-xl border border-border-strong/70 text-sm font-medium hover:bg-subtle"
             >
               Annulla
             </button>
             <button
               type="button"
               onClick={onRemove}
-              className="h-10 flex-1 rounded-lg bg-primary text-sm font-medium text-white hover:bg-primary-hover"
+              className="h-10 flex-1 rounded-xl bg-error-text text-sm font-semibold text-white hover:opacity-90"
             >
               Rimuovi
             </button>

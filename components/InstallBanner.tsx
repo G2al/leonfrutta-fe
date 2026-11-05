@@ -127,7 +127,7 @@ export function InstallBanner({ delayMs = 1500 }: { delayMs?: number }) {
           <button
             type="button"
             onClick={() => void install()}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-base font-semibold text-white shadow-ds-sm transition-colors hover:bg-[#047857] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="flex h-12 w-full items-center justify-center gap-2 btn-cta rounded-2xl text-base font-bold transition-transform active:scale-[0.98] hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <DownloadIcon width={18} height={18} /> Installa l&apos;app
           </button>

@@ -28,13 +28,14 @@ export function SubmitButton({ phase, blockedLabel }: SubmitButtonProps) {
     <button
       type="submit"
       disabled={disabled}
-      className={`relative flex h-14 w-full items-center justify-center overflow-hidden rounded-xl bg-primary px-7 text-base font-semibold text-white shadow-ds-md transition-[transform,background-color,opacity] duration-150 hover:bg-primary-hover active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:active:scale-100 ${
-        busy ? "" : "disabled:opacity-40 disabled:hover:bg-primary"
+      className={`relative flex h-14 w-full items-center justify-center overflow-hidden rounded-2xl px-7 text-base font-bold tracking-wide text-white transition-[transform,opacity] duration-150 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:active:scale-100 ${
+        // Durante l'invio il fondo diventa scuro e la barra verde lo riempie.
+        busy ? "bg-primary shadow-ds-md" : "btn-cta disabled:opacity-40"
       }`}
     >
       <span
         aria-hidden="true"
-        className={`absolute inset-y-0 left-0 bg-accent ${fill}`}
+        className={`absolute inset-y-0 left-0 bg-gradient-to-r from-accent to-leaf ${fill}`}
       />
       {phase === "sending" && (
         <span aria-hidden="true" className="animate-shimmer absolute inset-0 bg-[linear-gradient(110deg,transparent_30%,rgb(255_255_255/0.18)_50%,transparent_70%)] bg-[length:200%_100%]" />

@@ -19,11 +19,11 @@ export default async function OrderDetailPage({ params }: PageProps<"/richieste/
   }
 
   return (
-    <PageShell>
-      <PageHeader
-        title="Dettaglio richiesta"
-        back={{ href: "/richieste", label: "Le mie richieste" }}
-      />
+    <PageShell
+      header={
+        <PageHeader title="Dettaglio richiesta" back={{ href: "/richieste", label: "Le mie richieste" }} />
+      }
+    >
       <main className="flex-1">
         <OrderDetail token={decoded} />
       </main>

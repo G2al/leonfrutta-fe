@@ -8,8 +8,11 @@ export const metadata: Metadata = {
 
 export default function MyOrdersPage() {
   return (
-    <PageShell>
-      <PageHeader title="Le mie richieste" subtitle="Stato, importo e pagamento delle richieste inviate." />
+    <PageShell
+      header={
+        <PageHeader title="Le mie richieste" subtitle="Stato, importo e pagamento delle richieste inviate." />
+      }
+    >
       <main className="flex-1">
         <MyOrders />
       </main>

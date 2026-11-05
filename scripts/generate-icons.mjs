@@ -38,6 +38,13 @@ await icon(new URL("icon-maskable-512.png", out), 512, 0.12);
 await icon(new URL("icon.png", app), 96, 0.02);
 await icon(new URL("apple-icon.png", app), 180, 0.08);
 
+// Logo ritagliato (senza margini trasparenti) per la testata della pagina.
+await sharp(logo)
+  .trim()
+  .resize(480, 480, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .webp({ quality: 88 })
+  .toFile(fileURLToPath(new URL("leonfrutta-logo-round.webp", root)));
+
 // Sostituita da app/apple-icon.png.
 rmSync(new URL("apple-touch-icon.png", out), { force: true });
 console.log("Icone generate in public/icons e app/");

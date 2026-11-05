@@ -125,14 +125,17 @@ export function MyOrders() {
       )}
 
       {saved.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-center">
+        <div className="animate-rise rounded-3xl border border-border bg-surface p-6 text-center shadow-ds-md">
+          <div aria-hidden="true" className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-accent-soft text-3xl">
+            🧺
+          </div>
           <h2 className="text-lg font-semibold">Nessuna richiesta su questo dispositivo</h2>
           <p className="mt-2 text-base leading-relaxed text-muted">
             Le richieste che invii da qui compariranno in questo elenco, con il loro stato.
           </p>
           <Link
             href="/"
-            className="mt-5 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-7 text-base font-semibold text-white hover:bg-primary-hover"
+            className="mt-5 inline-flex h-12 items-center justify-center gap-2 btn-cta rounded-2xl px-7 text-base font-bold transition-transform active:scale-[0.98]"
           >
             <PlusIcon width={18} height={18} /> Nuovo ordine
           </Link>

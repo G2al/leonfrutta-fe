@@ -7,5 +7,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["__tests__/**/*.test.{ts,tsx}"],
+    setupFiles: ["./vitest.setup.ts"],
+    // I test del modulo simulano la digitazione carattere per carattere.
+    testTimeout: 20000,
   },
 });

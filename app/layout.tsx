@@ -25,7 +25,8 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "LeonFrutta",
-    statusBarStyle: "default",
+    // La testata verde arriva sotto la barra di stato di iOS.
+    statusBarStyle: "black-translucent",
   },
   formatDetection: { telephone: false },
   // Favicon e icona iOS arrivano da app/icon.png e app/apple-icon.png.
@@ -38,7 +39,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#f8fafc",
+  // Barra di stato verde come la testata.
+  themeColor: "#15803d",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

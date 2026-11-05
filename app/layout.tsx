@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
 import { BottomNav } from "@/components/BottomNav";
+import { InstallBanner } from "@/components/InstallBanner";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-dvh">
         {children}
         <BottomNav />
+        <InstallBanner />
         <ServiceWorkerRegister />
       </body>
     </html>
